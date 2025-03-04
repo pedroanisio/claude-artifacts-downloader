@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Claude Artifacts Downloader</title>
+  <meta charset="utf-8">
+  <style>
+    :root {
+        --primary-text-color: #ffffffe6;
+      --primary-color: #d17040;
+      --primary-hover: #d17040da;
+      --primary-disabled: #ad592f71;
+      --text-color: #333;
+      --success-bg: #e6f7eb;
+      --success-text: #1e7c45;
+      --error-bg: #fce8e8;
+      --error-text: #d32f2f;
+      --info-bg: #dedede;
+      --info-text: #4b4b4b;
+      --warning-bg: #fff8e1;
+      --warning-text: #ff8f00;
+      --progress-bg: #f1f1f1;
+      --table-header-bg: #f5f5f5;
+      --table-border: #eee;
+      --loading-border: #ffffff11;
+    }
+
+    body {
+      width: 360px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      padding: 16px;
+      color: var(--text-color);
+      background-color: #262624;
+    }
+    
+    h1 {
+      font-size: 20px;
+      margin-top: 0;
+      color: var(--primary-text-color);
+      width: 100%;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      width: 100%;
+      margin-top: 8px;
+    }
+    
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+    
+    button:disabled {
+      background-color: var(--primary-disabled);
+      cursor: not-allowed;
+    }
+
+    .downloadButton {
+        margin-top: 20px;
+    }
+    
+    .status {
+      margin-top: 16px;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .success {
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border-left: 4px solid var(--success-text);
+    }
+    
+    .error {
+      background-color: var(--error-bg);
+      color: var(--error-text);
+      border-left: 4px solid var(--error-text);
+    }
+    
+    .info {
+      background-color: var(--info-bg);
+      color: var(--info-text);
+      border-left: 4px solid var(--info-text);
+    }
+    
+    .warning {
+      background-color: var(--warning-bg);
+      color: var(--warning-text);
+      border-left: 4px solid var(--warning-text);
+    }
+    
+    .progress-container {
+      width: 100%;
+      background-color: var(--progress-bg);
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 6px;
+      background-color: var(--primary-color);
+      width: 0%;
+      transition: width 0.2s;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .artifact-list {
+      margin-top: 16px;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid var(--table-border);
+      border-radius: 4px;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .artifact-list table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    .artifact-list th {
+      background-color: var(--table-header-bg);
+      text-align: left;
+      padding: 10px;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    
+    .artifact-list td {
+      padding: 10px;
+      border-top: 1px solid var(--table-border);
+      word-break: break-word;
+    }
+    
+    .artifact-count {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    footer {
+      font-size: 11px;
+      color: #888;
+      margin-top: 16px;
+      text-align: center;
+    }
+    
+    /* Loading Spinner Styles */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 0;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--loading-border);
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    .loading-text {
+      margin-top: 16px;
+      font-size: 14px;
+      color: #939393;
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      margin-top: 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container"><img src="./images/logo128.png" style="width: 48px; height: 48px" /></div>
+  <h1>Claude Artifacts Downloader</h1>
+  <div id="loadingContainer" class="loading-container">
+    <div class="spinner"></div>
+    <div class="loading-text">Scanning for artifacts...</div>
+  </div>
+  
+  <div class="progress-container hidden" id="progressContainer">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  
+  <div id="statusContainer" class="status hidden"></div>
+  <div id="artifactCountContainer" class="artifact-count hidden">
+    <span id="artifactCount">0</span> artifacts found
+  </div>
+  
+  <div id="artifactListContainer" class="artifact-list hidden">
+    <table>
+      <thead>
+        <tr>
+          <th>Filename</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody id="artifactListBody">
+        <!-- Artifacts will be listed here -->
+      </tbody>
+    </table>
+  </div>
+  <button id="downloadButton" class="downloadButton" disabled>Download Artifacts</button>
+  <footer>Works on claude.ai conversation pages only.</footer>
+  <script src="popup.js"></script>
+</body>
+</html>

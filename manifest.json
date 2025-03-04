@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Claude Artifacts Downloader",
+  "version": "1.0",
+  "description": "Download artifacts from Claude conversations as a zip file",
+  "permissions": ["tabs", "activeTab", "scripting", "downloads", "storage"],
+  "host_permissions": ["https://claude.ai/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/logo16.png",
+      "48": "images/logo48.png",
+      "128": "images/logo128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://claude.ai/chat/*"],
+      "js": ["floatingButton.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["jszip.min.js", "images/logo128.png"],
+      "matches": ["https://claude.ai/*"]
+    }
+  ],
+  "icons": {
+    "16": "images/logo16.png",
+    "48": "images/logo48.png",
+    "128": "images/logo128.png"
+  }
+}
