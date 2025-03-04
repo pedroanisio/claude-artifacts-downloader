@@ -3,7 +3,7 @@
   "name": "Claude Artifacts Downloader",
   "version": "1.0",
   "description": "Download artifacts from Claude conversations as a zip file",
-  "permissions": ["tabs", "activeTab", "scripting", "downloads", "storage"],
+  "permissions": ["tabs", "activeTab", "scripting", "downloads"],
   "host_permissions": ["https://claude.ai/*"],
   "background": {
     "service_worker": "background.js"
