@@ -190,13 +190,12 @@ function extractFilename(title) {
 }
 
 
-// Function to extract organization ID
 function getOrganizationId() {
-  // Try to get from URL
+  // 1) URL
   const urlMatch = window.location.href.match(/\/organizations\/([0-9a-f-]+)/);
   if (urlMatch) return urlMatch[1];
-  
-  // Try from localStorage
+
+  // 2) localStorage
   try {
     const apolloState = JSON.parse(localStorage.getItem('apollo-cache-persist') || '{}');
     for (const key in apolloState) {
@@ -207,7 +206,26 @@ function getOrganizationId() {
   } catch (e) {
     console.warn('Could not extract organization ID from localStorage:', e);
   }
-  
-  // Default value from the API URL in the example
+
+  // 3) NEW FALLBACK → scan <script> tags
+  console.log('Fallback: scanning all <script> tags for lastActiveOrg…');
+  try {
+    // look for \"name\":\"lastActiveOrg\" … \"value\":\"<UUID>\"
+    const re = /\\"name\\":\\"lastActiveOrg\\".*?\\"value\\":\\"([0-9a-f\\-]{36})\\"/;
+    const scripts = document.querySelectorAll('script');
+    for (const script of scripts) {
+      const txt = script.textContent || '';
+      const m = txt.match(re);
+      if (m) {
+        console.log('Found lastActiveOrg in script:', m[1]);
+        return m[1];
+      }
+    }
+    console.warn('Fallback regex did not match any <script> contents');
+  } catch (e) {
+    console.error('Error while scanning scripts for lastActiveOrg:', e);
+  }
+
+  // 4) final default
   return "3a282320-9fdd-4d0d-9223-058d86e9c384";
 }
